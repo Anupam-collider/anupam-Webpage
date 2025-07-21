@@ -66,3 +66,13 @@ footer {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
+
+.entry {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.references {
+  font-style: italic;
+  font-size: 0.95em;
+}
