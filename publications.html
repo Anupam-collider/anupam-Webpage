@@ -9,13 +9,46 @@
     header, footer { text-align:center; padding:1em; background:#003366; color:#fff; }
     main { padding:2em; max-width:1000px; margin:auto; }
     h1, h2 { color:#003366; }
-    .publication-card { background:#fff; border:1px solid #ddd; border-radius:10px; padding:1.2em; margin-bottom:1.5em; }
+    .stats-box {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-left: 6px solid #4CAF50;
+      margin-bottom: 30px;
+      border-radius: 8px;
+    }
+    .stats-box h2 {
+      margin-top: 0;
+    }
+    .journal-stats {
+      padding-left: 20px;
+      font-family: monospace;
+      margin-top: 10px;
+    }
+    .publication-card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:10px;
+      padding:1.2em;
+      margin-bottom:1.5em;
+    }
     .publication-card h3 { margin:0; font-size:20px; color:#222; }
     .publication-card em { color:#444; }
-    .meta, .metrics { margin-top:0.5em; font-size:16px; color:#555; }
-    .metrics { font-style:italic; color:#777; }
-    .metrics a { color:#0066cc; text-decoration:none; }
-    .metrics a:hover { text-decoration:underline; }
+    .meta, .metrics {
+      margin-top:0.5em;
+      font-size:16px;
+      color:#555;
+    }
+    .metrics {
+      font-style:italic;
+      color:#777;
+    }
+    .metrics a {
+      color:#0066cc;
+      text-decoration:none;
+    }
+    .metrics a:hover {
+      text-decoration:underline;
+    }
   </style>
 </head>
 <body>
@@ -26,6 +59,31 @@
 </header>
 
 <main>
+
+  <!-- Publication Stats -->
+  <div class="stats-box">
+    <h2>Publication Stats</h2>
+    <p><strong>Total Citations:</strong> <span id="citations">Loading...</span></p>
+    <p><strong>h-index:</strong> <span id="hindex">Loading...</span></p>
+    <p><strong>i10-index:</strong> <span id="i10index">4</span></p>
+
+   <div class="journal-stats">
+  Journals:<br><br>
+  Physical Review Letters (PRL) ------- 3<br>
+  Journal of High Energy Physics (JHEP) -- 10<br>
+  Physical Review D (PRD) -------------- 16
+</div>
+
+<div class="journal-stats" style="margin-top: 30px;">
+  Journals (Sole Author):<br><br>
+  Physical Review Letters (PRL) ------- 3<br>
+  Journal of High Energy Physics (JHEP) -- 10<br>
+  Physical Review D (PRD) -------------- 16
+</div>
+
+
+  </div>
+
   <section>
     <h2>A. Refereed Journals / arXiv</h2>
     <p><strong>* corresponds to corresponding author</strong></p>
@@ -38,7 +96,7 @@
       <p class="metrics">
         📑 Citations: <span class="citations">Loading...</span> |
         🔗 DOI: (pending) |
-        Impact: — 
+        Impact: —
       </p>
     </div>
 
@@ -49,11 +107,12 @@
       <p><strong>Minor revision from PRD</strong>, <a href="https://arxiv.org/abs/2411.09464">[arXiv:2411.09464]</a></p>
       <p class="metrics">
         📑 Citations: <span class="citations">Loading...</span> |
-        🔗 DOI: (pending) | Impact: —
+        🔗 DOI: (pending) |
+        Impact: —
       </p>
     </div>
 
-    <!-- 3 -->
+        <!-- 3 -->
     <div class="publication-card" data-inspireid="XXX">
       <h3>Unveiling desert region in inert doublet model assisted by Peccei-Quinn symmetry</h3>
       <p><em>Anupam Ghosh*, Partha Konar</em></p>
@@ -92,7 +151,7 @@
       </p>
     </div>
 
-    <!-- 6 -->
+   <!-- 6 -->
     <div class="publication-card" data-inspireid="XXX">
       <h3>Top‑philic dark matter in a hybrid KSVZ axion framework</h3>
       <p><em>Anupam Ghosh*, Partha Konar, Rishav Roshan</em></p>
@@ -137,27 +196,43 @@
   </section>
 </main>
 
-<footer>
-  &copy; 2025 Anupam Ghosh
-</footer>
-
 <script>
-  async function fetchCitations(id, el) {
+  async function fetchInspireStats() {
     try {
-      const res = await fetch(`https://inspirehep.net/api/literature/${id}`);
-      const json = await res.json();
-      el.textContent = json.metadata.citation_count ?? '0';
-    } catch {
-      el.textContent = 'N/A';
+      const authorQuery = encodeURIComponent('exactauthor:"Anupam Ghosh"');
+      const url = `https://inspirehep.net/api/authors?sort=mostrecent&size=1&q=${authorQuery}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const author = data?.hits?.hits?.[0]?.metadata;
+
+      document.getElementById("citations").textContent = author?.citation_count ?? "N/A";
+      document.getElementById("hindex").textContent = author?.hindex ?? "N/A";
+    } catch (err) {
+      document.getElementById("citations").textContent = "Unavailable";
+      document.getElementById("hindex").textContent = "Unavailable";
     }
   }
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.publication-card').forEach(card => {
-      const id = card.getAttribute('data-inspireid');
-      const span = card.querySelector('.citations');
-      if (id && span) fetchCitations(id, span);
-    });
-  });
+
+  async function fetchIndividualCitations() {
+    const cards = document.querySelectorAll(".publication-card");
+    for (let card of cards) {
+      const inspireId = card.getAttribute("data-inspireid");
+      const span = card.querySelector(".citations");
+
+      try {
+        const url = `https://inspirehep.net/api/literature/${inspireId}`;
+        const res = await fetch(url);
+        const paper = await res.json();
+        const count = paper?.metadata?.citation_count ?? "—";
+        span.textContent = count;
+      } catch (e) {
+        span.textContent = "—";
+      }
+    }
+  }
+
+  fetchInspireStats();
+  fetchIndividualCitations();
 </script>
 
 </body>
