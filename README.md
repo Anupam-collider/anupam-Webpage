@@ -25,12 +25,6 @@ The webpage consists of:
 - `style.css` – Styling for all pages
 
 
-## 🚀 How to Use
-
-1. Clone or download this repository.
-2. Make edits to the HTML files as needed.
-3. Push changes to update your GitHub Pages site.
-
 ---
 
 > © 2025 Anupam Ghosh. All rights reserved.
